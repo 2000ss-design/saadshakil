@@ -1,0 +1,57 @@
+import { useState, useEffect } from 'react';
+
+const navLinks = [
+  { label: 'About', href: '#about' },
+  { label: 'Skills', href: '#skills' },
+  { label: 'Experience', href: '#experience' },
+  { label: 'Projects', href: '#projects' },
+  { label: 'Certifications', href: '#certifications' },
+  { label: 'Contact', href: '#contact' },
+];
+
+export default function Navbar() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  return (
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'glass-strong py-3' : 'py-5'}`}>
+      <div className="container mx-auto flex items-center justify-between px-4">
+        <a href="#" className="text-xl font-bold gradient-text">SS</a>
+
+        {/* Desktop */}
+        <div className="hidden md:flex gap-8">
+          {navLinks.map(l => (
+            <a key={l.href} href={l.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
+              {l.label}
+            </a>
+          ))}
+        </div>
+
+        {/* Mobile toggle */}
+        <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden text-foreground">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            {menuOpen ? <path d="M18 6L6 18M6 6l12 12" /> : <path d="M3 12h18M3 6h18M3 18h18" />}
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile menu */}
+      {menuOpen && (
+        <div className="md:hidden glass-strong mt-2 mx-4 rounded-lg p-4 space-y-3">
+          {navLinks.map(l => (
+            <a key={l.href} href={l.href} onClick={() => setMenuOpen(false)}
+              className="block text-sm text-muted-foreground hover:text-primary transition-colors">
+              {l.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </nav>
+  );
+}
