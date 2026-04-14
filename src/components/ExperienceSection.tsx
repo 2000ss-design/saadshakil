@@ -1,4 +1,5 @@
 import SectionHeading from './SectionHeading';
+import ScrollReveal from './ScrollReveal';
 
 const experiences = [
   {
@@ -35,23 +36,27 @@ export default function ExperienceSection() {
   return (
     <section id="experience" className="section-padding">
       <div className="container mx-auto max-w-3xl">
-        <SectionHeading title="Experience" subtitle="My professional journey." />
+        <ScrollReveal>
+          <SectionHeading title="Experience" subtitle="My professional journey." />
+        </ScrollReveal>
         <div className="relative">
           <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-accent/30 to-transparent" />
           <div className="space-y-10">
             {experiences.map((exp, i) => (
-              <div key={i} className="relative pl-12">
-                <div className="absolute left-2.5 top-1 w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
-                <div className="glass rounded-xl p-6 glow-border">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                    <h3 className="font-semibold text-foreground">{exp.role}</h3>
-                    <span className="text-xs font-mono text-primary">{exp.period}</span>
+              <ScrollReveal key={i} delay={i * 0.12} direction="left">
+                <div className="relative pl-12">
+                  <div className="absolute left-2.5 top-1 w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.5)]" />
+                  <div className="glass rounded-xl p-6 glow-border hover:border-primary/30 transition-all duration-300 hover:shadow-[0_0_25px_hsl(var(--primary)/0.15)]">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
+                      <h3 className="font-semibold text-foreground">{exp.role}</h3>
+                      <span className="text-xs font-mono text-primary">{exp.period}</span>
+                    </div>
+                    <p className="text-sm text-primary/80 mb-1">{exp.company}</p>
+                    <p className="text-xs text-muted-foreground mb-2">{exp.location}</p>
+                    <p className="text-sm text-muted-foreground">{exp.description}</p>
                   </div>
-                  <p className="text-sm text-primary/80 mb-1">{exp.company}</p>
-                  <p className="text-xs text-muted-foreground mb-2">{exp.location}</p>
-                  <p className="text-sm text-muted-foreground">{exp.description}</p>
                 </div>
-              </div>
+              </ScrollReveal>
             ))}
           </div>
         </div>
