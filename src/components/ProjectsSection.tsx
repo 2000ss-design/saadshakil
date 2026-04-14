@@ -2,19 +2,24 @@ import SectionHeading from './SectionHeading';
 
 const projects = [
   {
-    title: 'CloudDash',
-    description: 'Real-time cloud infrastructure monitoring dashboard with alerting and analytics.',
-    tags: ['React', 'Node.js', 'AWS', 'WebSocket'],
+    title: 'Bill Payments',
+    description: 'An integrated digital payment solution that empowers customers to make all their payments quickly and hassle-free.',
+    tags: ['JMeter', 'Playwright', 'API Testing', 'Performance'],
   },
   {
-    title: 'PixelForge',
-    description: 'AI-powered image editing platform with collaborative features and real-time rendering.',
-    tags: ['Next.js', 'Python', 'TensorFlow', 'WebGL'],
+    title: 'Caterpillar',
+    description: 'Component Lifecycle Management for Product and Obsolescence — managing entire product life stages and risk treatment.',
+    tags: ['Cypress', 'Azure DevOps', 'Regression Testing'],
   },
   {
-    title: 'DevConnect',
-    description: 'Social platform for developers to share projects, collaborate, and find mentors.',
-    tags: ['React', 'GraphQL', 'PostgreSQL', 'Docker'],
+    title: 'Hazwoper OSHA',
+    description: 'A platform providing information, training courses, and resources related to Hazwoper regulations and OSHA compliance.',
+    tags: ['Manual Testing', 'Web UI', 'Cross-Browser'],
+  },
+  {
+    title: 'Xoltan Blockchain',
+    description: 'Blockchain-based platform containing NFT Marketplace & Tokenization of Coins with MetaMask & Polygon integration.',
+    tags: ['Blockchain', 'MetaMask', 'Polygon', 'Postman'],
   },
 ];
 
@@ -22,8 +27,8 @@ export default function ProjectsSection() {
   return (
     <section id="projects" className="section-padding bg-secondary/20">
       <div className="container mx-auto">
-        <SectionHeading title="Projects" subtitle="Some things I've built." />
-        <div className="grid md:grid-cols-3 gap-6">
+        <SectionHeading title="Projects" subtitle="Some things I've tested and delivered." />
+        <div className="grid md:grid-cols-2 gap-6">
           {projects.map((p) => (
             <div key={p.title} className="glass rounded-xl p-6 glow-border group hover:border-primary/40 transition-all hover:-translate-y-1 duration-300">
               <h3 className="text-lg font-semibold text-foreground mb-2 group-hover:text-primary transition-colors">{p.title}</h3>

@@ -2,20 +2,20 @@ import SectionHeading from './SectionHeading';
 
 const skillCategories = [
   {
-    title: 'Frontend',
-    skills: ['React', 'TypeScript', 'Next.js', 'Tailwind CSS', 'Three.js'],
+    title: 'Automation',
+    skills: ['Playwright', 'Cypress', 'Web Automation', 'BlazeMeter'],
   },
   {
-    title: 'Backend',
-    skills: ['Node.js', 'Python', 'PostgreSQL', 'REST APIs', 'GraphQL'],
+    title: 'API & Performance',
+    skills: ['Postman', 'JMeter', 'REST API Testing', 'Load & Stress Testing'],
   },
   {
-    title: 'DevOps & Cloud',
-    skills: ['AWS', 'Docker', 'CI/CD', 'Kubernetes', 'Terraform'],
+    title: 'Tools & Platforms',
+    skills: ['Azure DevOps', 'Git / GitHub', 'Lambda Test', 'Testworthy'],
   },
   {
-    title: 'Tools & Other',
-    skills: ['Git', 'Figma', 'Agile', 'Linux', 'Testing'],
+    title: 'Testing & Other',
+    skills: ['Manual Testing', 'Regression Testing', 'Blockchain Testing', 'ISTQB Certified'],
   },
 ];
 
