@@ -3,70 +3,19 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import saadAvatar from '@/assets/saad-avatar.png';
 
-// Blink overlay - thin dark bars that simulate eye closing
-function BlinkOverlay({ blinking }: { blinking: boolean }) {
-  const leftRef = useRef<THREE.Mesh>(null);
-  const rightRef = useRef<THREE.Mesh>(null);
-  const targetScale = blinking ? 1 : 0;
-
-  useFrame((_, delta) => {
-    [leftRef, rightRef].forEach((ref) => {
-      if (!ref.current) return;
-      ref.current.scale.y = THREE.MathUtils.lerp(ref.current.scale.y, targetScale, 12 * delta);
-    });
-  });
-
-  const material = useMemo(() => new THREE.MeshBasicMaterial({
-    color: new THREE.Color('#2a1a10'),
-    transparent: true,
-    opacity: 0.85,
-    depthTest: false,
-  }), []);
-
-  return (
-    <>
-      {/* Left eye blink */}
-      <mesh ref={leftRef} position={[-0.28, 0.72, 0.01]} scale={[1, 0, 1]}>
-        <planeGeometry args={[0.22, 0.07]} />
-        <primitive object={material} attach="material" />
-      </mesh>
-      {/* Right eye blink */}
-      <mesh ref={rightRef} position={[0.28, 0.72, 0.01]} scale={[1, 0, 1]}>
-        <planeGeometry args={[0.22, 0.07]} />
-        <primitive object={material.clone()} attach="material" />
-      </mesh>
-    </>
-  );
-}
-
 // 3D photo card that tracks cursor
 function PhotoCard() {
   const groupRef = useRef<THREE.Group>(null);
+  const { viewport } = useThree();
+
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const targetRotation = useRef({ x: 0, y: 0 });
   const breathOffset = useRef(0);
-  const [blinking, setBlinking] = useState(false);
 
   const texture = useMemo(() => {
     const tex = new THREE.TextureLoader().load(saadAvatar);
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
-  }, []);
-
-  // Eye blink interval
-  useEffect(() => {
-    const blink = () => {
-      setBlinking(true);
-      setTimeout(() => setBlinking(false), 150);
-    };
-    const interval = setInterval(() => {
-      blink();
-      // Double blink sometimes
-      if (Math.random() > 0.6) {
-        setTimeout(blink, 300);
-      }
-    }, 3000 + Math.random() * 2000);
-    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -80,10 +29,16 @@ function PhotoCard() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  const frameMaterial = useMemo(() => new THREE.MeshStandardMaterial({
+    color: new THREE.Color('#1a2a3a'),
+    metalness: 0.8,
+    roughness: 0.2,
+  }), []);
+
   const glowMaterial = useMemo(() => new THREE.MeshStandardMaterial({
     color: new THREE.Color('#22d3ee'),
     emissive: new THREE.Color('#22d3ee'),
-    emissiveIntensity: 1,
+    emissiveIntensity: 0.8,
     metalness: 0.9,
     roughness: 0.1,
   }), []);
@@ -91,47 +46,43 @@ function PhotoCard() {
   useFrame((_, delta) => {
     if (!groupRef.current) return;
 
-    targetRotation.current.y = THREE.MathUtils.clamp(mouse.x * 0.25, -0.35, 0.35);
-    targetRotation.current.x = THREE.MathUtils.clamp(mouse.y * 0.12, -0.15, 0.15);
+    // Cursor tracking
+    targetRotation.current.y = THREE.MathUtils.clamp(mouse.x * 0.3, -0.4, 0.4);
+    targetRotation.current.x = THREE.MathUtils.clamp(mouse.y * 0.15, -0.2, 0.2);
 
     groupRef.current.rotation.y = THREE.MathUtils.lerp(
-      groupRef.current.rotation.y, targetRotation.current.y, 3 * delta
+      groupRef.current.rotation.y,
+      targetRotation.current.y,
+      3 * delta
     );
     groupRef.current.rotation.x = THREE.MathUtils.lerp(
-      groupRef.current.rotation.x, -targetRotation.current.x, 3 * delta
+      groupRef.current.rotation.x,
+      -targetRotation.current.x,
+      3 * delta
     );
 
+    // Breathing / floating
     breathOffset.current += delta;
-    groupRef.current.position.y = Math.sin(breathOffset.current * 1.2) * 0.04;
-    groupRef.current.rotation.z = Math.sin(breathOffset.current * 0.5) * 0.01;
+    groupRef.current.position.y = Math.sin(breathOffset.current * 1.2) * 0.05;
+    groupRef.current.rotation.z = Math.sin(breathOffset.current * 0.5) * 0.015;
   });
 
   return (
     <group ref={groupRef}>
-      {/* Avatar image - centered */}
-      <mesh position={[0, 0, 0]}>
-        <planeGeometry args={[2.6, 3.5]} />
-        <meshStandardMaterial
-          map={texture}
-          transparent
-          alphaTest={0.5}
-          emissive={new THREE.Color('#ffffff')}
-          emissiveIntensity={0.15}
-          toneMapped={false}
-        />
+      {/* Avatar plane - no background */}
+      <mesh position={[0, 0.1, 0]}>
+        <planeGeometry args={[2.4, 3.2]} />
+        <meshStandardMaterial map={texture} transparent alphaTest={0.5} />
       </mesh>
 
-      {/* Blink overlay */}
-      <BlinkOverlay blinking={blinking} />
-
-      {/* Glow ring behind */}
-      <mesh position={[0, 0, -0.15]}>
-        <ringGeometry args={[1.6, 1.65, 64]} />
+      {/* Subtle glow ring behind avatar */}
+      <mesh position={[0, 0, -0.15]} rotation={[0, 0, 0]}>
+        <ringGeometry args={[1.5, 1.55, 64]} />
         <primitive object={glowMaterial} attach="material" />
       </mesh>
       <mesh position={[0, 0, -0.2]} rotation={[0, 0, Math.PI / 6]}>
-        <ringGeometry args={[1.8, 1.83, 64]} />
-        <meshStandardMaterial color="#22d3ee" emissive="#22d3ee" emissiveIntensity={0.4} transparent opacity={0.35} />
+        <ringGeometry args={[1.7, 1.73, 64]} />
+        <meshStandardMaterial color="#22d3ee" emissive="#22d3ee" emissiveIntensity={0.3} transparent opacity={0.4} />
       </mesh>
     </group>
   );
@@ -161,7 +112,12 @@ function Particles() {
   return (
     <points ref={particlesRef}>
       <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
+        <bufferAttribute
+          attach="attributes-position"
+          count={count}
+          array={positions}
+          itemSize={3}
+        />
       </bufferGeometry>
       <pointsMaterial size={0.03} color="#22d3ee" transparent opacity={0.6} sizeAttenuation />
     </points>
@@ -177,18 +133,20 @@ export default function Avatar3D() {
   }, []);
 
   return (
-    <div className={`w-full h-[500px] md:h-[600px] flex items-center justify-center transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+    <div
+      className={`w-full h-[500px] md:h-[600px] transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}
+    >
       <Canvas
         camera={{ position: [0, 0, 4.5], fov: 45 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
         style={{ background: 'transparent' }}
       >
-        <ambientLight intensity={0.6} />
-        <directionalLight position={[3, 3, 5]} intensity={1.2} color="#f0f8ff" />
-        <pointLight position={[-3, 1, -2]} intensity={0.8} color="#22d3ee" />
-        <pointLight position={[3, -1, -2]} intensity={0.5} color="#8b5cf6" />
-        <pointLight position={[0, 2, 3]} intensity={0.4} color="#ffffff" />
+        <ambientLight intensity={0.3} />
+        <directionalLight position={[3, 3, 5]} intensity={0.8} color="#e0f2fe" />
+        <pointLight position={[-3, 1, -2]} intensity={0.6} color="#22d3ee" />
+        <pointLight position={[3, -1, -2]} intensity={0.4} color="#8b5cf6" />
+        <pointLight position={[0, -3, 2]} intensity={0.2} color="#22d3ee" />
 
         <PhotoCard />
         <Particles />

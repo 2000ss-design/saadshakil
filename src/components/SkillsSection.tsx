@@ -1,5 +1,4 @@
 import SectionHeading from './SectionHeading';
-import ScrollReveal from './ScrollReveal';
 
 const skillCategories = [
   {
@@ -24,21 +23,17 @@ export default function SkillsSection() {
   return (
     <section id="skills" className="section-padding bg-secondary/20">
       <div className="container mx-auto">
-        <ScrollReveal>
-          <SectionHeading title="Skills" subtitle="Technologies and tools I work with." />
-        </ScrollReveal>
+        <SectionHeading title="Skills" subtitle="Technologies and tools I work with." />
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {skillCategories.map((cat, i) => (
-            <ScrollReveal key={cat.title} delay={i * 0.1} direction="scale">
-              <div className="glass rounded-xl p-6 glow-border hover:border-primary/30 hover:scale-[1.03] transition-all duration-300 h-full">
-                <h3 className="text-primary font-semibold mb-4 font-mono text-sm tracking-wider">{cat.title}</h3>
-                <div className="flex flex-wrap gap-2">
-                  {cat.skills.map((s) => (
-                    <span key={s} className="px-3 py-1 rounded-full text-xs bg-muted text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors duration-200">{s}</span>
-                  ))}
-                </div>
+          {skillCategories.map((cat) => (
+            <div key={cat.title} className="glass rounded-xl p-6 glow-border hover:border-primary/30 transition-colors">
+              <h3 className="text-primary font-semibold mb-4 font-mono text-sm tracking-wider">{cat.title}</h3>
+              <div className="flex flex-wrap gap-2">
+                {cat.skills.map((s) => (
+                  <span key={s} className="px-3 py-1 rounded-full text-xs bg-muted text-muted-foreground">{s}</span>
+                ))}
               </div>
-            </ScrollReveal>
+            </div>
           ))}
         </div>
       </div>
