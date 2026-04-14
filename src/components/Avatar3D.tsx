@@ -1,7 +1,7 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
-import saadPhoto from '@/assets/saad-photo.jpeg';
+import saadAvatar from '@/assets/saad-avatar.png';
 
 // 3D photo card that tracks cursor
 function PhotoCard() {
@@ -13,7 +13,7 @@ function PhotoCard() {
   const breathOffset = useRef(0);
 
   const texture = useMemo(() => {
-    const tex = new THREE.TextureLoader().load(saadPhoto);
+    const tex = new THREE.TextureLoader().load(saadAvatar);
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
   }, []);
@@ -69,42 +69,21 @@ function PhotoCard() {
 
   return (
     <group ref={groupRef}>
-      {/* Photo plane */}
-      <mesh position={[0, 0.15, 0.06]}>
-        <planeGeometry args={[2.2, 2.6]} />
-        <meshStandardMaterial map={texture} />
+      {/* Avatar plane - no background */}
+      <mesh position={[0, 0.1, 0]}>
+        <planeGeometry args={[2.4, 3.2]} />
+        <meshStandardMaterial map={texture} transparent alphaTest={0.5} />
       </mesh>
 
-      {/* Frame back */}
-      <mesh position={[0, 0.15, 0]} material={frameMaterial}>
-        <boxGeometry args={[2.4, 2.8, 0.1]} />
-      </mesh>
-
-      {/* Glow edges */}
-      <mesh position={[0, 1.55, 0.05]}>
-        <boxGeometry args={[2.4, 0.02, 0.02]} />
+      {/* Subtle glow ring behind avatar */}
+      <mesh position={[0, 0, -0.15]} rotation={[0, 0, 0]}>
+        <ringGeometry args={[1.5, 1.55, 64]} />
         <primitive object={glowMaterial} attach="material" />
       </mesh>
-      <mesh position={[0, -1.25, 0.05]}>
-        <boxGeometry args={[2.4, 0.02, 0.02]} />
-        <primitive object={glowMaterial} attach="material" />
+      <mesh position={[0, 0, -0.2]} rotation={[0, 0, Math.PI / 6]}>
+        <ringGeometry args={[1.7, 1.73, 64]} />
+        <meshStandardMaterial color="#22d3ee" emissive="#22d3ee" emissiveIntensity={0.3} transparent opacity={0.4} />
       </mesh>
-      <mesh position={[-1.2, 0.15, 0.05]}>
-        <boxGeometry args={[0.02, 2.8, 0.02]} />
-        <primitive object={glowMaterial} attach="material" />
-      </mesh>
-      <mesh position={[1.2, 0.15, 0.05]}>
-        <boxGeometry args={[0.02, 2.8, 0.02]} />
-        <primitive object={glowMaterial} attach="material" />
-      </mesh>
-
-      {/* Corner accents */}
-      {[[-1.2, 1.55], [1.2, 1.55], [-1.2, -1.25], [1.2, -1.25]].map(([x, y], i) => (
-        <mesh key={i} position={[x, y, 0.06]}>
-          <sphereGeometry args={[0.04, 8, 8]} />
-          <primitive object={glowMaterial} attach="material" />
-        </mesh>
-      ))}
     </group>
   );
 }
