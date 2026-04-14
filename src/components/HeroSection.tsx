@@ -20,19 +20,18 @@ export default function HeroSection() {
 
   return (
     <section className="relative min-h-screen flex items-center overflow-hidden">
-      {/* Animated background */}
+      {/* Background gradient orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-32 w-96 h-96 rounded-full bg-primary/5 blur-3xl animate-pulse-glow" />
         <div className="absolute bottom-1/4 -right-32 w-96 h-96 rounded-full bg-accent/5 blur-3xl animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
-        {/* Scan line */}
-        <div className="absolute inset-0 bg-[linear-gradient(transparent_50%,hsl(var(--primary)/0.02)_50%)] bg-[length:100%_4px] animate-[scanline_8s_linear_infinite]" />
       </div>
 
       <div className="container mx-auto px-4 grid md:grid-cols-2 gap-8 items-center pt-20">
+        {/* Text */}
         <div className="space-y-6 text-center md:text-left order-2 md:order-1">
-          <div className="inline-block px-3 py-1 rounded-full glass border border-primary/30 text-primary font-mono text-xs tracking-widest opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-            ⚡ PLAYER 1 READY
-          </div>
+          <p className="text-primary font-mono text-sm tracking-widest opacity-0 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+            HELLO, I'M
+          </p>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight opacity-0 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
             <span className="text-foreground">Saad</span>{' '}
             <span className="gradient-text">Shakil</span>
@@ -41,16 +40,16 @@ export default function HeroSection() {
             SQA Engineer — Certified by ISTQB & PSTB with 3.5+ years of experience in quality assurance & test automation.
           </p>
           <div className="flex gap-4 justify-center md:justify-start flex-wrap opacity-0 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
-            <a href="#projects" className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-all hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)] hover:-translate-y-0.5">
+            <a href="#projects" className="px-6 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity">
               View Projects
             </a>
-            <a href="#contact" className="px-6 py-3 rounded-lg glass glow-border text-foreground font-medium hover:border-primary/50 transition-all hover:-translate-y-0.5">
+            <a href="#contact" className="px-6 py-3 rounded-lg glass glow-border text-foreground font-medium hover:border-primary/50 transition-colors">
               Get in Touch
             </a>
             <button
               onClick={playVoiceIntro}
               disabled={isPlaying}
-              className="px-5 py-3 rounded-lg glass glow-border text-foreground font-medium hover:border-primary/50 transition-all flex items-center gap-2 disabled:opacity-60 hover:-translate-y-0.5"
+              className="px-5 py-3 rounded-lg glass glow-border text-foreground font-medium hover:border-primary/50 transition-all flex items-center gap-2 disabled:opacity-60"
             >
               {isPlaying ? (
                 <>
@@ -58,19 +57,27 @@ export default function HeroSection() {
                   Speaking...
                 </>
               ) : (
-                <>🎙 Voice Intro</>
+                <>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-primary">
+                    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.08" />
+                  </svg>
+                  🎙 Voice Intro
+                </>
               )}
             </button>
           </div>
         </div>
 
+        {/* 3D Avatar */}
         <div className="order-1 md:order-2">
           <Avatar3D />
         </div>
       </div>
 
+      {/* Scroll indicator */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-muted-foreground">
-        <span className="text-xs tracking-widest font-mono">SCROLL ▼</span>
+        <span className="text-xs tracking-widest">SCROLL</span>
         <div className="w-px h-8 bg-gradient-to-b from-primary/50 to-transparent animate-pulse-glow" />
       </div>
     </section>
