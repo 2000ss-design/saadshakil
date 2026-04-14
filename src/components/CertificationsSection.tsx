@@ -1,24 +1,36 @@
 import SectionHeading from './SectionHeading';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const certifications = [
-  'Certified Tester Foundation Level v4.0 — ISTQB',
-  'Software Test Automation Engineer — Xinsof Technologies',
-  'API Testing with Postman — 10 Pearls University',
-  'QA Fundamentals — 10 Pearls University',
-  'API Testing and Basic Overview of JMeter',
-  'Building an AI First Mindset — LinkedIn Learning',
+  { name: 'Certified Tester Foundation Level v4.0 — ISTQB', rarity: 'LEGENDARY', color: 'border-yellow-500/40 hover:border-yellow-400/60' },
+  { name: 'Software Test Automation Engineer — Xinsof Technologies', rarity: 'EPIC', color: 'border-purple-500/40 hover:border-purple-400/60' },
+  { name: 'API Testing with Postman — 10 Pearls University', rarity: 'RARE', color: 'border-blue-400/40 hover:border-blue-300/60' },
+  { name: 'QA Fundamentals — 10 Pearls University', rarity: 'RARE', color: 'border-blue-400/40 hover:border-blue-300/60' },
+  { name: 'API Testing and Basic Overview of JMeter', rarity: 'UNCOMMON', color: 'border-green-400/40 hover:border-green-300/60' },
+  { name: 'Building an AI First Mindset — LinkedIn Learning', rarity: 'UNCOMMON', color: 'border-green-400/40 hover:border-green-300/60' },
 ];
 
 export default function CertificationsSection() {
+  const { ref, isVisible } = useScrollReveal();
+
   return (
-    <section id="certifications" className="section-padding">
+    <section id="certifications" className="section-padding relative">
       <div className="container mx-auto max-w-3xl">
-        <SectionHeading title="Certifications" subtitle="Professional credentials and continuous learning." />
-        <div className="grid sm:grid-cols-2 gap-4">
+        <SectionHeading title="Certifications" subtitle="Achievement unlocked — professional credentials." />
+        <div ref={ref} className="grid sm:grid-cols-2 gap-4">
           {certifications.map((cert, i) => (
-            <div key={i} className="glass rounded-xl p-5 glow-border flex items-start gap-3 hover:border-primary/30 transition-colors">
-              <div className="mt-1 w-2 h-2 rounded-full bg-primary flex-shrink-0 shadow-[0_0_8px_hsl(var(--primary)/0.5)]" />
-              <span className="text-sm text-secondary-foreground">{cert}</span>
+            <div
+              key={i}
+              className={`glass rounded-xl p-5 flex items-start gap-3 transition-all duration-500 group hover:-translate-y-1 hover:shadow-[0_0_20px_hsl(var(--primary)/0.1)] border ${cert.color} ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'}`}
+              style={{ transitionDelay: `${i * 100}ms` }}
+            >
+              <div className="mt-0.5 flex-shrink-0">
+                <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center text-xs">🏆</div>
+              </div>
+              <div>
+                <span className="text-[10px] font-mono font-bold text-primary/80 tracking-wider">{cert.rarity}</span>
+                <p className="text-sm text-secondary-foreground mt-0.5">{cert.name}</p>
+              </div>
             </div>
           ))}
         </div>

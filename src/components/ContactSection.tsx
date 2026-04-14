@@ -1,30 +1,112 @@
+import { useState } from 'react';
 import SectionHeading from './SectionHeading';
+import { useScrollReveal } from '@/hooks/useScrollReveal';
+
+const contactLinks = [
+  {
+    label: 'Email',
+    icon: '📧',
+    value: 'saadshakil2000@gmail.com',
+    href: 'mailto:saadshakil2000@gmail.com',
+    color: 'hover:border-red-400/50 hover:shadow-[0_0_25px_rgba(248,113,113,0.15)]',
+  },
+  {
+    label: 'Phone',
+    icon: '📞',
+    value: '+92 316 114 1034',
+    href: 'tel:+923161141034',
+    color: 'hover:border-green-400/50 hover:shadow-[0_0_25px_rgba(74,222,128,0.15)]',
+  },
+  {
+    label: 'GitHub',
+    icon: '🐙',
+    value: 'github.com/2000ss-design',
+    href: 'https://github.com/2000ss-design',
+    color: 'hover:border-purple-400/50 hover:shadow-[0_0_25px_rgba(192,132,252,0.15)]',
+  },
+  {
+    label: 'LinkedIn',
+    icon: '💼',
+    value: 'linkedin.com/in/saad-shakil2000',
+    href: 'https://linkedin.com/in/saad-shakil2000',
+    color: 'hover:border-blue-400/50 hover:shadow-[0_0_25px_rgba(96,165,250,0.15)]',
+  },
+];
 
 export default function ContactSection() {
+  const { ref, isVisible } = useScrollReveal();
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  const copyEmail = () => {
+    navigator.clipboard.writeText('saadshakil2000@gmail.com');
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
   return (
-    <section id="contact" className="section-padding bg-secondary/20">
-      <div className="container mx-auto max-w-2xl text-center">
-        <SectionHeading title="Get in Touch" subtitle="I'm always open to new opportunities and collaborations." />
-        <div className="glass rounded-2xl p-8 md:p-12 glow-border space-y-6">
-          <p className="text-muted-foreground">
-            Whether you have a project in mind, want to collaborate, or just want to say hello — feel free to reach out.
-          </p>
-          <a
-            href="mailto:saadshakil2000@gmail.com"
-            className="inline-block px-8 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-opacity"
-          >
-            Say Hello
-          </a>
-          <p className="text-sm text-muted-foreground">
-            📞 +92 316 114 1034 &nbsp;·&nbsp; 📍 Karachi, Pakistan
-          </p>
-          <div className="flex justify-center gap-6 pt-4">
-            <a href="https://github.com/2000ss-design" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              GitHub
-            </a>
-            <a href="https://linkedin.com/in/saad-shakil2000" target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors">
-              LinkedIn
-            </a>
+    <section id="contact" className="section-padding bg-secondary/20 relative overflow-hidden">
+      {/* Animated bg orbs */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-1/3 -left-20 w-72 h-72 rounded-full bg-primary/5 blur-3xl animate-pulse-glow" />
+        <div className="absolute bottom-1/4 -right-20 w-72 h-72 rounded-full bg-accent/5 blur-3xl animate-pulse-glow" style={{ animationDelay: '1.5s' }} />
+      </div>
+
+      <div className="container mx-auto max-w-3xl relative z-10">
+        <SectionHeading title="Contact" subtitle="Ready to connect? Let's make it happen." />
+
+        <div ref={ref} className="space-y-6">
+          {/* Interactive contact cards */}
+          <div className="grid sm:grid-cols-2 gap-4">
+            {contactLinks.map((link, i) => (
+              <a
+                key={link.label}
+                href={link.href}
+                target={link.href.startsWith('http') ? '_blank' : undefined}
+                rel={link.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                onMouseEnter={() => setHoveredIdx(i)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                className={`glass rounded-xl p-5 border border-border/50 transition-all duration-500 group block hover:-translate-y-2 ${link.color} ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+                style={{ transitionDelay: `${i * 100}ms` }}
+              >
+                <div className="flex items-center gap-4">
+                  <div className={`text-2xl transition-transform duration-300 ${hoveredIdx === i ? 'scale-125 rotate-12' : ''}`}>
+                    {link.icon}
+                  </div>
+                  <div>
+                    <div className="text-xs font-mono text-primary tracking-wider uppercase">{link.label}</div>
+                    <div className="text-sm text-foreground mt-0.5 group-hover:text-primary transition-colors">{link.value}</div>
+                  </div>
+                </div>
+                {/* Animated corner lines */}
+                <div className="absolute top-0 right-0 w-8 h-8 overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute top-0 right-0 w-px h-4 bg-primary/60" />
+                  <div className="absolute top-0 right-0 h-px w-4 bg-primary/60" />
+                </div>
+              </a>
+            ))}
+          </div>
+
+          {/* CTA area */}
+          <div className={`glass rounded-2xl p-8 glow-border text-center space-y-5 transition-all duration-700 ${isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`} style={{ transitionDelay: '500ms' }}>
+            <p className="text-muted-foreground">
+              Whether you have a project in mind, want to collaborate, or just want to say hello — feel free to reach out.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <a
+                href="mailto:saadshakil2000@gmail.com"
+                className="px-8 py-3 rounded-lg bg-primary text-primary-foreground font-medium hover:opacity-90 transition-all hover:shadow-[0_0_25px_hsl(var(--primary)/0.3)] hover:-translate-y-0.5"
+              >
+                🚀 Say Hello
+              </a>
+              <button
+                onClick={copyEmail}
+                className="px-6 py-3 rounded-lg glass glow-border text-foreground font-medium hover:border-primary/50 transition-all hover:-translate-y-0.5"
+              >
+                {copied ? '✅ Copied!' : '📋 Copy Email'}
+              </button>
+            </div>
+            <p className="text-xs text-muted-foreground font-mono">📍 Karachi, Pakistan · Available for remote work</p>
           </div>
         </div>
       </div>
