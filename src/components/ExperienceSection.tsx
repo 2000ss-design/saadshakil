@@ -45,29 +45,29 @@ export default function ExperienceSection() {
 
   return (
     <section id="experience" className="section-padding relative">
-      <div className="container mx-auto max-w-3xl">
+      <div className="container mx-auto max-w-3xl px-4 sm:px-6">
         <SectionHeading title="Experience" subtitle="My professional journey — quest log." />
         <div ref={ref} className="relative">
-          <div className="absolute left-4 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-accent/30 to-transparent" />
-          <div className="space-y-10">
+          <div className="absolute left-3 sm:left-4 top-0 bottom-0 w-px bg-gradient-to-b from-primary/50 via-accent/30 to-transparent" />
+          <div className="space-y-8 sm:space-y-10">
             {experiences.map((exp, i) => (
               <div
                 key={i}
-                className={`relative pl-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
+                className={`relative pl-9 sm:pl-12 transition-all duration-700 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-8'}`}
                 style={{ transitionDelay: `${i * 150}ms` }}
               >
-                <div className="absolute left-2.5 top-1 w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.5)] animate-pulse-glow" />
-                <div className="glass rounded-xl p-6 glow-border group hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_hsl(var(--primary)/0.1)]">
-                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-2">
-                    <h3 className="font-semibold text-foreground">{exp.role}</h3>
+                <div className="absolute left-1.5 sm:left-2.5 top-1 w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_hsl(var(--primary)/0.5)] animate-pulse-glow" />
+                <div className="glass rounded-xl p-4 sm:p-6 glow-border group hover:border-primary/40 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_0_25px_hsl(var(--primary)/0.1)]">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-2">
+                    <h3 className="font-semibold text-sm sm:text-base text-foreground">{exp.role}</h3>
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-mono font-bold ${exp.color} px-2 py-0.5 rounded border border-current/30`}>{exp.level}</span>
-                      <span className="text-xs font-mono text-primary">{exp.period}</span>
+                      <span className={`text-[9px] sm:text-[10px] font-mono font-bold ${exp.color} px-1.5 sm:px-2 py-0.5 rounded border border-current/30`}>{exp.level}</span>
+                      <span className="text-[10px] sm:text-xs font-mono text-primary">{exp.period}</span>
                     </div>
                   </div>
-                  <p className="text-sm text-primary/80 mb-1">{exp.company}</p>
-                  <p className="text-xs text-muted-foreground mb-2">{exp.location}</p>
-                  <p className="text-sm text-muted-foreground">{exp.description}</p>
+                  <p className="text-xs sm:text-sm text-primary/80 mb-1">{exp.company}</p>
+                  <p className="text-[10px] sm:text-xs text-muted-foreground mb-2">{exp.location}</p>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{exp.description}</p>
                 </div>
               </div>
             ))}
