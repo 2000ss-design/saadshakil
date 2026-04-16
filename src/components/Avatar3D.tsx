@@ -37,10 +37,12 @@ function CircularAvatar() {
           vec2 center = vec2(0.5, 0.5);
           float dist = distance(vUv, center);
           if (dist > 0.48) discard;
-          // Soft edge
-          float alpha = smoothstep(0.48, 0.45, dist);
+          float edge = smoothstep(0.48, 0.44, dist);
           vec4 tex = texture2D(uTexture, vUv);
-          gl_FragColor = vec4(tex.rgb, tex.a * alpha);
+          // Blend transparent areas with dark bg color
+          vec3 bg = vec3(0.04, 0.08, 0.15);
+          vec3 color = mix(bg, tex.rgb, tex.a);
+          gl_FragColor = vec4(color, edge);
         }
       `,
       transparent: true,
