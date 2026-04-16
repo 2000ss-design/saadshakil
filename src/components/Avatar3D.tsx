@@ -3,8 +3,10 @@ import { useRef, useState, useEffect, useMemo } from 'react';
 import * as THREE from 'three';
 import saadAvatar from '@/assets/saad-avatar-nobg.png';
 
-function PhotoCard() {
+function CircularAvatar() {
   const groupRef = useRef<THREE.Group>(null);
+  const ringRef = useRef<THREE.Mesh>(null);
+  const outerRingRef = useRef<THREE.Mesh>(null);
   const [mouse, setMouse] = useState({ x: 0, y: 0 });
   const targetRotation = useRef({ x: 0, y: 0 });
   const breathOffset = useRef(0);
@@ -14,6 +16,37 @@ function PhotoCard() {
     tex.colorSpace = THREE.SRGBColorSpace;
     return tex;
   }, []);
+
+  // Create circular clipping via stencil
+  const circleMaterial = useMemo(() => {
+    return new THREE.ShaderMaterial({
+      uniforms: {
+        uTexture: { value: texture },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D uTexture;
+        varying vec2 vUv;
+        void main() {
+          vec2 center = vec2(0.5, 0.5);
+          float dist = distance(vUv, center);
+          if (dist > 0.48) discard;
+          // Soft edge
+          float alpha = smoothstep(0.48, 0.45, dist);
+          vec4 tex = texture2D(uTexture, vUv);
+          gl_FragColor = vec4(tex.rgb, tex.a * alpha);
+        }
+      `,
+      transparent: true,
+      side: THREE.DoubleSide,
+    });
+  }, [texture]);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -26,47 +59,84 @@ function PhotoCard() {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (!groupRef.current) return;
-    targetRotation.current.y = THREE.MathUtils.clamp(mouse.x * 0.3, -0.4, 0.4);
-    targetRotation.current.x = THREE.MathUtils.clamp(mouse.y * 0.15, -0.2, 0.2);
+    targetRotation.current.y = THREE.MathUtils.clamp(mouse.x * 0.25, -0.3, 0.3);
+    targetRotation.current.x = THREE.MathUtils.clamp(mouse.y * 0.12, -0.15, 0.15);
     groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotation.current.y, 3 * delta);
     groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, -targetRotation.current.x, 3 * delta);
     breathOffset.current += delta;
-    groupRef.current.position.y = Math.sin(breathOffset.current * 1.2) * 0.05;
-    groupRef.current.rotation.z = Math.sin(breathOffset.current * 0.5) * 0.015;
+    groupRef.current.position.y = Math.sin(breathOffset.current * 1.2) * 0.04;
+
+    // Animate ring glow
+    if (ringRef.current) {
+      const mat = ringRef.current.material as THREE.MeshStandardMaterial;
+      mat.emissiveIntensity = 0.8 + Math.sin(state.clock.elapsedTime * 2) * 0.4;
+    }
+    if (outerRingRef.current) {
+      outerRingRef.current.rotation.z += delta * 0.3;
+    }
   });
 
   return (
     <group ref={groupRef}>
-      {/* Avatar image */}
-      <mesh position={[0, 0.1, 0.1]}>
-        <planeGeometry args={[2.4, 3.2]} />
-        <meshStandardMaterial map={texture} transparent alphaTest={0.5} side={THREE.DoubleSide} />
+      {/* Circular avatar image with shader clipping */}
+      <mesh position={[0, 0.15, 0.05]} material={circleMaterial}>
+        <planeGeometry args={[3, 3]} />
       </mesh>
 
-      {/* Glowing circular backdrop */}
+      {/* Dark circular backdrop */}
+      <mesh position={[0, 0, -0.05]}>
+        <circleGeometry args={[1.42, 64]} />
+        <meshStandardMaterial color="#0a1628" emissive="#22d3ee" emissiveIntensity={0.05} />
+      </mesh>
+
+      {/* Primary glow ring */}
+      <mesh ref={ringRef} position={[0, 0, -0.06]}>
+        <ringGeometry args={[1.38, 1.48, 64]} />
+        <meshStandardMaterial
+          color="#22d3ee"
+          emissive="#22d3ee"
+          emissiveIntensity={1.0}
+          transparent
+          opacity={0.8}
+        />
+      </mesh>
+
+      {/* Rotating dashed outer ring */}
+      <mesh ref={outerRingRef} position={[0, 0, -0.08]}>
+        <ringGeometry args={[1.55, 1.58, 64]} />
+        <meshStandardMaterial
+          color="#8b5cf6"
+          emissive="#8b5cf6"
+          emissiveIntensity={0.8}
+          transparent
+          opacity={0.5}
+        />
+      </mesh>
+
+      {/* Soft outer halo */}
       <mesh position={[0, 0, -0.1]}>
-        <circleGeometry args={[1.6, 64]} />
-        <meshStandardMaterial color="#0c4a6e" emissive="#22d3ee" emissiveIntensity={0.15} transparent opacity={0.4} />
+        <ringGeometry args={[1.65, 1.9, 64]} />
+        <meshStandardMaterial
+          color="#22d3ee"
+          emissive="#22d3ee"
+          emissiveIntensity={0.3}
+          transparent
+          opacity={0.12}
+        />
       </mesh>
 
-      {/* Outer glow ring */}
-      <mesh position={[0, 0, -0.12]}>
-        <ringGeometry args={[1.55, 1.65, 64]} />
-        <meshStandardMaterial color="#22d3ee" emissive="#22d3ee" emissiveIntensity={1.2} transparent opacity={0.6} />
-      </mesh>
-
-      {/* Secondary pulse ring */}
-      <mesh position={[0, 0, -0.15]}>
-        <ringGeometry args={[1.75, 1.8, 64]} />
-        <meshStandardMaterial color="#8b5cf6" emissive="#8b5cf6" emissiveIntensity={0.6} transparent opacity={0.3} />
-      </mesh>
-
-      {/* Subtle outer halo */}
-      <mesh position={[0, 0, -0.18]}>
-        <ringGeometry args={[1.9, 2.1, 64]} />
-        <meshStandardMaterial color="#22d3ee" emissive="#22d3ee" emissiveIntensity={0.2} transparent opacity={0.1} />
+      {/* Large soft glow behind everything */}
+      <mesh position={[0, 0, -0.2]}>
+        <circleGeometry args={[2.2, 64]} />
+        <meshStandardMaterial
+          color="#0c4a6e"
+          emissive="#22d3ee"
+          emissiveIntensity={0.08}
+          transparent
+          opacity={0.2}
+        />
       </mesh>
     </group>
   );
@@ -74,7 +144,7 @@ function PhotoCard() {
 
 function Particles() {
   const particlesRef = useRef<THREE.Points>(null);
-  const count = 100;
+  const count = 80;
 
   const positions = useMemo(() => {
     const pos = new Float32Array(count * 3);
@@ -88,8 +158,8 @@ function Particles() {
 
   useFrame((_, delta) => {
     if (!particlesRef.current) return;
-    particlesRef.current.rotation.y += delta * 0.04;
-    particlesRef.current.rotation.x += delta * 0.015;
+    particlesRef.current.rotation.y += delta * 0.03;
+    particlesRef.current.rotation.x += delta * 0.01;
   });
 
   return (
@@ -97,41 +167,8 @@ function Particles() {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
       </bufferGeometry>
-      <pointsMaterial size={0.035} color="#22d3ee" transparent opacity={0.6} sizeAttenuation />
+      <pointsMaterial size={0.03} color="#22d3ee" transparent opacity={0.5} sizeAttenuation />
     </points>
-  );
-}
-
-function FloatingOrbs() {
-  const groupRef = useRef<THREE.Group>(null);
-
-  const orbs = useMemo(() => {
-    return Array.from({ length: 6 }, (_, i) => ({
-      pos: [(Math.random() - 0.5) * 6, (Math.random() - 0.5) * 5, -2 - Math.random() * 2] as [number, number, number],
-      scale: Math.random() * 0.15 + 0.05,
-      speed: Math.random() * 0.4 + 0.2,
-      phase: Math.random() * Math.PI * 2,
-    }));
-  }, []);
-
-  useFrame((state) => {
-    if (!groupRef.current) return;
-    groupRef.current.children.forEach((child, i) => {
-      const orb = orbs[i];
-      child.position.y = orb.pos[1] + Math.sin(state.clock.elapsedTime * orb.speed + orb.phase) * 0.4;
-      child.position.x = orb.pos[0] + Math.cos(state.clock.elapsedTime * orb.speed * 0.7 + orb.phase) * 0.2;
-    });
-  });
-
-  return (
-    <group ref={groupRef}>
-      {orbs.map((orb, i) => (
-        <mesh key={i} position={orb.pos} scale={orb.scale}>
-          <sphereGeometry args={[1, 16, 16]} />
-          <meshStandardMaterial color="#22d3ee" emissive="#22d3ee" emissiveIntensity={0.8} transparent opacity={0.25} />
-        </mesh>
-      ))}
-    </group>
   );
 }
 
@@ -144,16 +181,15 @@ export default function Avatar3D() {
   }, []);
 
   return (
-    <div className={`w-full h-[350px] sm:h-[420px] md:h-[520px] lg:h-[600px] transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
-      <Canvas camera={{ position: [0, 0, 4.5], fov: 45 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }} style={{ background: 'transparent' }}>
-        <ambientLight intensity={0.4} />
-        <directionalLight position={[3, 3, 5]} intensity={1} color="#e0f2fe" />
-        <pointLight position={[-3, 1, -2]} intensity={0.8} color="#22d3ee" />
-        <pointLight position={[3, -1, -2]} intensity={0.5} color="#8b5cf6" />
+    <div className={`w-full h-[280px] sm:h-[350px] md:h-[460px] lg:h-[540px] transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
+      <Canvas camera={{ position: [0, 0, 4.2], fov: 45 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }} style={{ background: 'transparent' }}>
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[3, 3, 5]} intensity={1.2} color="#e0f2fe" />
+        <pointLight position={[-3, 1, -2]} intensity={0.9} color="#22d3ee" />
+        <pointLight position={[3, -1, -2]} intensity={0.6} color="#8b5cf6" />
         <pointLight position={[0, -3, 2]} intensity={0.3} color="#22d3ee" />
-        <PhotoCard />
+        <CircularAvatar />
         <Particles />
-        <FloatingOrbs />
       </Canvas>
     </div>
   );
