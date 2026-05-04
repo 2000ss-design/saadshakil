@@ -2,8 +2,8 @@ import SectionHeading from './SectionHeading';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
 
 const stats = [
-  { label: 'Years Experience', value: '3.5+' },
-  { label: 'Projects Delivered', value: '15+' },
+  { label: 'Years Experience', value: '4+' },
+  { label: 'Fintech Projects', value: '15+' },
   { label: 'Certifications', value: '6' },
   { label: 'Tools Mastered', value: '12+' },
 ];
@@ -18,15 +18,15 @@ export default function AboutSection() {
 
         <div ref={ref} className={`glass rounded-2xl p-6 sm:p-8 md:p-12 glow-border space-y-5 sm:space-y-6 transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           <p className="text-sm sm:text-base text-secondary-foreground leading-relaxed">
-            I'm Saad Shakil — a certified SQA Engineer from ISTQB and PSTB with over 3.5+ years of experience
-            helping companies improve software quality and reliability. Based in Karachi, Pakistan, I specialize
-            in test planning, execution, defect identification, and automation.
+            I'm Saad Shakil — an <span className="text-primary font-semibold">ISTQB-certified, fintech-focused SQA Engineer</span> with
+            4+ years of experience in automation and performance testing. I specialize in API validation,
+            ATM transaction flows, and instant payment systems like <span className="text-accent font-semibold">Raast</span>.
           </p>
           <p className="text-sm sm:text-base text-secondary-foreground leading-relaxed">
-            I hold a Bachelor's in Computer Science from Dawood University of Engineering & Technology.
-            My expertise spans manual and automated testing, performance testing, API testing, and blockchain
-            transaction testing. I'm committed to continuous learning and delivering exceptional results
-            in fast-paced environments.
+            I build robust automation frameworks using <span className="text-primary font-semibold">Playwright</span> and <span className="text-primary font-semibold">Cypress</span>,
+            and optimize system performance with <span className="text-primary font-semibold">JMeter</span> and simulators like <span className="text-primary font-semibold">PaySim</span> and <span className="text-primary font-semibold">FimSIM</span>.
+            Based in Karachi, Pakistan, I hold a Bachelor's in Computer Science from Dawood University of Engineering & Technology and
+            thrive on delivering reliable, high-performance fintech software.
           </p>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 pt-4">
