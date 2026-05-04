@@ -8,7 +8,7 @@ export default function HeroSection() {
     if (isPlaying || !('speechSynthesis' in window)) return;
     setIsPlaying(true);
     const utterance = new SpeechSynthesisUtterance(
-      "Hi, I'm Saad Shakil. A certified SQA Engineer with over 3.5 years of experience in software quality assurance. I specialize in test automation, performance testing, and API testing. Let's build quality software together!"
+      "Hi, I'm Saad Shakil. An ISTQB-certified, fintech-focused SQA Engineer with over 4 years of experience in automation and performance testing. I specialize in API validation, ATM transaction flows, and instant payment systems like Raast. I build automation frameworks with Playwright and Cypress, and optimize system performance using JMeter and simulators like PaySim and FimSIM. Let's build reliable fintech software together!"
     );
     utterance.rate = 0.95;
     utterance.pitch = 1;
@@ -43,8 +43,8 @@ export default function HeroSection() {
             <span className="text-foreground">Saad</span>{' '}
             <span className="gradient-text">Shakil</span>
           </h1>
-          <p className="text-xs sm:text-base md:text-lg text-muted-foreground max-w-lg mx-auto md:mx-0 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-            SQA Engineer — Certified by ISTQB & PSTB with 3.5+ years of experience in quality assurance & test automation.
+          <p className="text-xs sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto md:mx-0 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            ISTQB-certified <span className="text-primary font-semibold">fintech-focused SQA Engineer</span> with 4+ years in automation & performance testing — Playwright, Cypress, JMeter, Raast, ATM flows & PaySim/FimSIM simulators.
           </p>
           <div className="flex gap-2 sm:gap-3 justify-center md:justify-start flex-wrap opacity-0 animate-fade-in-up" style={{ animationDelay: '0.8s' }}>
             <a href="#projects" className="px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg bg-primary text-primary-foreground font-medium text-xs sm:text-sm hover:opacity-90 transition-all hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)] hover:-translate-y-0.5">
