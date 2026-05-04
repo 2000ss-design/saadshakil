@@ -28,10 +28,8 @@ export default function HeroSection() {
 
       <div className="container mx-auto px-4 sm:px-6 flex flex-col md:grid md:grid-cols-2 gap-4 md:gap-8 items-center pt-16 sm:pt-20 pb-6">
         {/* Avatar - always on top on mobile */}
-        <div className="w-full flex justify-center md:order-2">
-          <div className="w-[240px] sm:w-[300px] md:w-full max-w-[480px]">
-            <Avatar3D />
-          </div>
+        <div className="w-full flex justify-center md:order-2 py-2 sm:py-4">
+          <Avatar3D />
         </div>
 
         {/* Text content */}
