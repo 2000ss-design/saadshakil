@@ -100,7 +100,18 @@ export default function ExperienceSection() {
                   </div>
                   <p className="text-xs sm:text-sm text-primary/80 mb-1">{exp.company}</p>
                   <p className="text-[10px] sm:text-xs text-muted-foreground mb-2">{exp.location}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{exp.description}</p>
+                  <ul className="space-y-1.5 mt-2">
+                    {exp.bullets.map((b, bi) => (
+                      <li
+                        key={bi}
+                        className={`text-xs sm:text-sm text-muted-foreground leading-relaxed flex gap-2 transition-all duration-500 ${isVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4'}`}
+                        style={{ transitionDelay: `${i * 150 + bi * 80 + 200}ms` }}
+                      >
+                        <span className="text-primary mt-1 shrink-0">▸</span>
+                        <span>{b}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             ))}
