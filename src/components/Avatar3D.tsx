@@ -1,200 +1,122 @@
-import { Canvas, useFrame } from '@react-three/fiber';
-import { useRef, useState, useEffect, useMemo } from 'react';
-import * as THREE from 'three';
+import { useEffect, useState, useRef } from 'react';
 import saadAvatar from '@/assets/saad-avatar-nobg.png';
-
-function CircularAvatar() {
-  const groupRef = useRef<THREE.Group>(null);
-  const ringRef = useRef<THREE.Mesh>(null);
-  const outerRingRef = useRef<THREE.Mesh>(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
-  const targetRotation = useRef({ x: 0, y: 0 });
-  const breathOffset = useRef(0);
-
-  const texture = useMemo(() => {
-    const tex = new THREE.TextureLoader().load(saadAvatar);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    return tex;
-  }, []);
-
-  // Create circular clipping via stencil
-  const circleMaterial = useMemo(() => {
-    return new THREE.ShaderMaterial({
-      uniforms: {
-        uTexture: { value: texture },
-      },
-      vertexShader: `
-        varying vec2 vUv;
-        void main() {
-          vUv = uv;
-          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        }
-      `,
-      fragmentShader: `
-        uniform sampler2D uTexture;
-        varying vec2 vUv;
-        void main() {
-          vec2 center = vec2(0.5, 0.5);
-          float dist = distance(vUv, center);
-          if (dist > 0.49) discard;
-          float edge = smoothstep(0.49, 0.46, dist);
-          vec4 tex = texture2D(uTexture, vUv);
-          // Brighten + slight contrast/saturation boost
-          vec3 color = tex.rgb * 1.25;
-          float luma = dot(color, vec3(0.299, 0.587, 0.114));
-          color = mix(vec3(luma), color, 1.15);
-          color = clamp(color, 0.0, 1.0);
-          gl_FragColor = vec4(color, tex.a * edge);
-        }
-      `,
-      transparent: true,
-      side: THREE.DoubleSide,
-    });
-  }, [texture]);
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMouse({
-        x: (e.clientX / window.innerWidth) * 2 - 1,
-        y: -(e.clientY / window.innerHeight) * 2 + 1,
-      });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  useFrame((state, delta) => {
-    if (!groupRef.current) return;
-    targetRotation.current.y = THREE.MathUtils.clamp(mouse.x * 0.25, -0.3, 0.3);
-    targetRotation.current.x = THREE.MathUtils.clamp(mouse.y * 0.12, -0.15, 0.15);
-    groupRef.current.rotation.y = THREE.MathUtils.lerp(groupRef.current.rotation.y, targetRotation.current.y, 3 * delta);
-    groupRef.current.rotation.x = THREE.MathUtils.lerp(groupRef.current.rotation.x, -targetRotation.current.x, 3 * delta);
-    breathOffset.current += delta;
-    groupRef.current.position.y = Math.sin(breathOffset.current * 1.2) * 0.04;
-
-    // Animate ring glow
-    if (ringRef.current) {
-      const mat = ringRef.current.material as THREE.MeshStandardMaterial;
-      mat.emissiveIntensity = 0.8 + Math.sin(state.clock.elapsedTime * 2) * 0.4;
-    }
-    if (outerRingRef.current) {
-      outerRingRef.current.rotation.z += delta * 0.3;
-    }
-  });
-
-  return (
-    <group ref={groupRef}>
-      {/* Circular avatar image with shader clipping */}
-      <mesh position={[0, 0.15, 0.05]} material={circleMaterial}>
-        <planeGeometry args={[3, 3]} />
-      </mesh>
-
-      {/* Dark circular backdrop */}
-      <mesh position={[0, 0, -0.05]}>
-        <circleGeometry args={[1.42, 64]} />
-        <meshStandardMaterial color="#0a1628" emissive="#22d3ee" emissiveIntensity={0.05} />
-      </mesh>
-
-      {/* Primary glow ring */}
-      <mesh ref={ringRef} position={[0, 0, -0.06]}>
-        <ringGeometry args={[1.38, 1.48, 64]} />
-        <meshStandardMaterial
-          color="#22d3ee"
-          emissive="#22d3ee"
-          emissiveIntensity={1.0}
-          transparent
-          opacity={0.8}
-        />
-      </mesh>
-
-      {/* Rotating dashed outer ring */}
-      <mesh ref={outerRingRef} position={[0, 0, -0.08]}>
-        <ringGeometry args={[1.55, 1.58, 64]} />
-        <meshStandardMaterial
-          color="#8b5cf6"
-          emissive="#8b5cf6"
-          emissiveIntensity={0.8}
-          transparent
-          opacity={0.5}
-        />
-      </mesh>
-
-      {/* Soft outer halo */}
-      <mesh position={[0, 0, -0.1]}>
-        <ringGeometry args={[1.65, 1.9, 64]} />
-        <meshStandardMaterial
-          color="#22d3ee"
-          emissive="#22d3ee"
-          emissiveIntensity={0.3}
-          transparent
-          opacity={0.12}
-        />
-      </mesh>
-
-      {/* Large soft glow behind everything */}
-      <mesh position={[0, 0, -0.2]}>
-        <circleGeometry args={[2.2, 64]} />
-        <meshStandardMaterial
-          color="#0c4a6e"
-          emissive="#22d3ee"
-          emissiveIntensity={0.08}
-          transparent
-          opacity={0.2}
-        />
-      </mesh>
-    </group>
-  );
-}
-
-function Particles() {
-  const particlesRef = useRef<THREE.Points>(null);
-  const count = 80;
-
-  const positions = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 8;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 8;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 4 - 1;
-    }
-    return pos;
-  }, []);
-
-  useFrame((_, delta) => {
-    if (!particlesRef.current) return;
-    particlesRef.current.rotation.y += delta * 0.03;
-    particlesRef.current.rotation.x += delta * 0.01;
-  });
-
-  return (
-    <points ref={particlesRef}>
-      <bufferGeometry>
-        <bufferAttribute attach="attributes-position" count={count} array={positions} itemSize={3} />
-      </bufferGeometry>
-      <pointsMaterial size={0.03} color="#22d3ee" transparent opacity={0.5} sizeAttenuation />
-    </points>
-  );
-}
 
 export default function Avatar3D() {
   const [visible, setVisible] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 300);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setVisible(true), 200);
+    return () => clearTimeout(t);
   }, []);
 
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / rect.width;
+    const dy = (e.clientY - cy) / rect.height;
+    setTilt({ x: dy * -8, y: dx * 10 });
+  };
+
+  const handleMouseLeave = () => setTilt({ x: 0, y: 0 });
+
   return (
-    <div className={`w-full h-[280px] sm:h-[350px] md:h-[460px] lg:h-[540px] transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
-      <Canvas camera={{ position: [0, 0, 4.2], fov: 45 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }} style={{ background: 'transparent' }}>
-        <ambientLight intensity={1.4} />
-        <directionalLight position={[3, 3, 5]} intensity={1.8} color="#ffffff" />
-        <pointLight position={[-3, 1, -2]} intensity={1.2} color="#22d3ee" />
-        <pointLight position={[3, -1, -2]} intensity={0.9} color="#8b5cf6" />
-        <pointLight position={[0, -3, 2]} intensity={0.5} color="#22d3ee" />
-        <CircularAvatar />
-        <Particles />
-      </Canvas>
+    <div
+      ref={containerRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      className={`relative w-full aspect-square max-w-[260px] sm:max-w-[340px] md:max-w-[420px] lg:max-w-[480px] mx-auto transition-all duration-1000 ${
+        visible ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
+      }`}
+      style={{ perspective: '1000px' }}
+    >
+      {/* Outer rotating dashed ring */}
+      <div
+        className="absolute inset-0 rounded-full border-2 border-dashed border-primary/40 animate-[spin_20s_linear_infinite]"
+        style={{ transform: 'scale(1.08)' }}
+      />
+
+      {/* Counter-rotating accent ring */}
+      <div
+        className="absolute inset-0 rounded-full border border-accent/50 animate-[spin_15s_linear_infinite_reverse]"
+        style={{ transform: 'scale(1.14)', borderStyle: 'dotted', borderWidth: '2px' }}
+      />
+
+      {/* Glow halos */}
+      <div className="absolute inset-0 rounded-full bg-primary/20 blur-3xl animate-pulse-glow" style={{ transform: 'scale(0.95)' }} />
+      <div
+        className="absolute inset-0 rounded-full bg-accent/20 blur-2xl animate-pulse-glow"
+        style={{ transform: 'scale(0.85)', animationDelay: '1.5s' }}
+      />
+
+      {/* Tilting card with image */}
+      <div
+        className="relative w-full h-full rounded-full overflow-hidden transition-transform duration-200 ease-out"
+        style={{
+          transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+          transformStyle: 'preserve-3d',
+          background:
+            'radial-gradient(circle at 30% 20%, hsl(var(--primary) / 0.25), hsl(var(--accent) / 0.15) 50%, hsl(var(--background)) 100%)',
+          boxShadow:
+            '0 0 60px hsl(var(--primary) / 0.35), inset 0 0 40px hsl(var(--accent) / 0.15), 0 20px 50px -10px hsl(var(--primary) / 0.4)',
+        }}
+      >
+        {/* Conic gradient border ring */}
+        <div
+          className="absolute inset-0 rounded-full opacity-70 animate-[spin_8s_linear_infinite]"
+          style={{
+            background:
+              'conic-gradient(from 0deg, hsl(var(--primary)), transparent 25%, hsl(var(--accent)), transparent 50%, hsl(var(--primary)), transparent 75%, hsl(var(--accent)))',
+            mask: 'radial-gradient(circle, transparent 92%, black 93%, black 100%)',
+            WebkitMask: 'radial-gradient(circle, transparent 92%, black 93%, black 100%)',
+          }}
+        />
+
+        {/* Inner soft backdrop */}
+        <div className="absolute inset-[6%] rounded-full bg-gradient-to-br from-background via-card to-background" />
+
+        {/* The avatar image */}
+        <img
+          src={saadAvatar}
+          alt="Saad Shakil — SQA Engineer"
+          className="absolute inset-[6%] w-[88%] h-[88%] object-cover object-top rounded-full"
+          style={{ filter: 'brightness(1.05) contrast(1.05) saturate(1.1)' }}
+        />
+
+        {/* Inner highlight glow */}
+        <div className="absolute inset-[6%] rounded-full pointer-events-none" style={{
+          background: 'radial-gradient(circle at 30% 20%, hsl(var(--primary) / 0.18), transparent 50%)',
+        }} />
+
+        {/* Scanline overlay for tech feel */}
+        <div
+          className="absolute inset-[6%] rounded-full pointer-events-none opacity-20"
+          style={{
+            background: 'repeating-linear-gradient(0deg, transparent, transparent 2px, hsl(var(--primary) / 0.15) 3px)',
+          }}
+        />
+      </div>
+
+      {/* Orbiting dots */}
+      <div className="absolute inset-0 animate-[spin_12s_linear_infinite] pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full bg-primary shadow-[0_0_15px_hsl(var(--primary))]" />
+      </div>
+      <div className="absolute inset-0 animate-[spin_18s_linear_infinite_reverse] pointer-events-none">
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-accent shadow-[0_0_15px_hsl(var(--accent))]" />
+      </div>
+      <div className="absolute inset-0 animate-[spin_25s_linear_infinite] pointer-events-none">
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-primary/80 shadow-[0_0_10px_hsl(var(--primary))]" />
+      </div>
+
+      {/* Status badge */}
+      <div className="absolute -bottom-1 sm:bottom-2 right-2 sm:right-4 z-10 flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full glass border border-primary/40 backdrop-blur-md">
+        <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-green-400 animate-pulse-glow shadow-[0_0_8px_hsl(142_76%_45%)]" />
+        <span className="text-[9px] sm:text-[10px] font-mono tracking-widest text-foreground/90">ONLINE</span>
+      </div>
     </div>
   );
 }
