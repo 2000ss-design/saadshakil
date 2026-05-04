@@ -39,7 +39,12 @@ function CircularAvatar() {
           if (dist > 0.49) discard;
           float edge = smoothstep(0.49, 0.46, dist);
           vec4 tex = texture2D(uTexture, vUv);
-          gl_FragColor = vec4(tex.rgb, tex.a * edge);
+          // Brighten + slight contrast/saturation boost
+          vec3 color = tex.rgb * 1.25;
+          float luma = dot(color, vec3(0.299, 0.587, 0.114));
+          color = mix(vec3(luma), color, 1.15);
+          color = clamp(color, 0.0, 1.0);
+          gl_FragColor = vec4(color, tex.a * edge);
         }
       `,
       transparent: true,
@@ -182,11 +187,11 @@ export default function Avatar3D() {
   return (
     <div className={`w-full h-[280px] sm:h-[350px] md:h-[460px] lg:h-[540px] transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}>
       <Canvas camera={{ position: [0, 0, 4.2], fov: 45 }} dpr={[1, 1.5]} gl={{ antialias: true, alpha: true }} style={{ background: 'transparent' }}>
-        <ambientLight intensity={0.5} />
-        <directionalLight position={[3, 3, 5]} intensity={1.2} color="#e0f2fe" />
-        <pointLight position={[-3, 1, -2]} intensity={0.9} color="#22d3ee" />
-        <pointLight position={[3, -1, -2]} intensity={0.6} color="#8b5cf6" />
-        <pointLight position={[0, -3, 2]} intensity={0.3} color="#22d3ee" />
+        <ambientLight intensity={1.4} />
+        <directionalLight position={[3, 3, 5]} intensity={1.8} color="#ffffff" />
+        <pointLight position={[-3, 1, -2]} intensity={1.2} color="#22d3ee" />
+        <pointLight position={[3, -1, -2]} intensity={0.9} color="#8b5cf6" />
+        <pointLight position={[0, -3, 2]} intensity={0.5} color="#22d3ee" />
         <CircularAvatar />
         <Particles />
       </Canvas>
